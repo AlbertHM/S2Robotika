@@ -2,14 +2,11 @@
 #include <stdio.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include <math.h>
 
 using namespace cv;
 using namespace std;
 
-#define PI 3.14159265
 
-/*
 Mat findBiggestBlob(cv::Mat & matImage){
     int largest_area=0;
     int largest_contour_index=0;
@@ -30,7 +27,7 @@ Mat findBiggestBlob(cv::Mat & matImage){
 
     drawContours( matImage, contours, largest_contour_index, Scalar(255), CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
     return matImage;
-}*/
+}
 
 std::vector<cv::Point> CariRectangle(Mat imgThresholded) {
     int largest_area=0;
@@ -79,15 +76,21 @@ int main( int argc, char** argv )
          return -1;
     }*/
 
-    //namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+    namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
-    batasTh merah = {0, 67, 168, 255, 192, 255}; // Objek
-    batasTh hijau= {55, 92, 93, 255, 133, 255}; // End-effector
-    batasTh jingga = {87, 122, 155, 255, 132, 255}; // Base
+    //batasTh merah  = {141, 213, 83, 255, 109, 248};
+//     batasTh hijau  = {44,  79,  52, 98, 161, 255};
+	/*
+    batasTh merah = {0,   64,  68, 255, 239, 255};
+    batasTh hijau= {44,   87,  108, 255, 121, 255};
+    batasTh jingga = {0,   255,  210, 255, 176, 255};
+    */
+    batasTh merah = {0,   32,  210, 255, 90, 255};
+    batasTh hijau= {32,   106,  0, 255, 0, 255};
+    batasTh jingga = {95,   162,  0, 255, 0, 255};
 
     Mat imgThrMerah, imgThrHijau, imgThrJinga;
     
-    /*
     //batasTh *aktif = &hijau;
     batasTh *aktif = &jingga;
     //Create trackbars in "Control" window
@@ -98,7 +101,7 @@ int main( int argc, char** argv )
     cvCreateTrackbar("HighS", "Control", &aktif->iHighS, 255);
 
     cvCreateTrackbar("LowV", "Control", &aktif->iLowV, 255); //Value (0 - 255)
-    cvCreateTrackbar("HighV", "Control", &aktif->iHighV, 255);*/
+    cvCreateTrackbar("HighV", "Control", &aktif->iHighV, 255);
 
     while (true) {
         Mat imgOriginal;
@@ -119,7 +122,7 @@ int main( int argc, char** argv )
         Mat imgHSV;
         cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
         
-        batasTh *aktif;
+        
         aktif = &merah;
         inRange(imgHSV, Scalar(aktif->iLowH, aktif->iLowS, aktif->iLowV), Scalar(aktif->iHighH, aktif->iHighS, aktif->iHighV), imgThrMerah); //Threshold the image
         aktif = &hijau;
@@ -130,140 +133,44 @@ int main( int argc, char** argv )
         imshow("Thresholded imgThrMerah", imgThrMerah); //show the thresholded image
         imshow("Thresholded imgThrHijau", imgThrHijau); //show the thresholded image
         imshow("Thresholded imgThrJinga", imgThrJinga); //show the thresholded image
-        
         erode(imgThrMerah,  imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
         dilate(imgThrMerah, imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         dilate(imgThrMerah, imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         erode(imgThrMerah,  imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
-        
         erode(imgThrHijau,  imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
         dilate(imgThrHijau, imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         dilate(imgThrHijau, imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         erode(imgThrHijau,  imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
-        
         erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
         dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
         
+//         imshow("pre-Thresholded imgThrMerah", imgThrMerah); //show the thresholded image
+//         imshow("pre-Thresholded imgThrHijau", imgThrHijau); //show the thresholded image
+//         imshow("pre-Thresholded imgThrJinga", imgThrJinga); //show the thresholded image
         std::vector<cv::Point> pointMerah, pointHijau, pointJingga;
         pointMerah = CariRectangle(imgThrMerah);
         pointHijau = CariRectangle(imgThrHijau);
         pointJingga = CariRectangle(imgThrJinga);
         
-        Point mcMerah, mcHijau, mcJingga;
-        int detectStat[3] = {0,0,0};
-        if (pointMerah.size() > 0) {			
+        if (pointMerah.size() > 0) {
             cv::Rect brect = cv::boundingRect(cv::Mat(pointMerah).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
-            
-            mcMerah.x = brect.x + (brect.width/2);
-            mcMerah.y = brect.y + (brect.height/2);
-            circle(imgOriginal, mcMerah, 4, Scalar(20,20,20));
-            
-            ostringstream sample;
-            sample << "Merah " << mcMerah.x << "," << mcMerah.y;
-            string text = sample.str();
-            putText(imgOriginal,text, mcMerah, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-            
-			detectStat[0] = 1;
         }
         if (pointHijau.size() > 0) {
             cv::Rect brect = cv::boundingRect(cv::Mat(pointHijau).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
-            
-            mcHijau.x = brect.x + (brect.width/2);
-            mcHijau.y = brect.y + (brect.height/2);
-            circle(imgOriginal, mcHijau, 4, Scalar(20,20,20));
-            
-            ostringstream sample;
-            sample << "Hijau " << mcHijau.x << "," << mcHijau.y;
-            string text = sample.str();
-            putText(imgOriginal,text, mcHijau, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-            
-			detectStat[1] = 1;
         }
         if (pointJingga.size() > 0) {
             cv::Rect brect = cv::boundingRect(cv::Mat(pointJingga).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
-            
-            mcJingga.x = brect.x + (brect.width/2);
-            mcJingga.y = brect.y + (brect.height/2);
-            circle(imgOriginal, mcJingga, 4, Scalar(20,20,20));
-            
-            ostringstream sample;
-            sample << "Biru " << mcJingga.x << "," << mcJingga.y;
-            string text = sample.str();
-            putText(imgOriginal,text, mcJingga, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-            
-			detectStat[2] = 1;
         }
-        double result;
-        // Draw link
-        if(detectStat[1] && detectStat[2])
-        {
-			line(imgOriginal, mcJingga, mcHijau, Scalar(100,100,200), 4);
-
-			Point delta, posText;
-			double param;//, result;
-			delta.x = mcHijau.x-mcJingga.x;
-			delta.y = mcHijau.y-mcJingga.y;
-			param = (-1.0*delta.y)/(1.0*delta.x);
-			if(mcHijau.x == mcJingga.x)
-			{
-				result = 90.0;
-			}
-			else if(mcHijau.x > mcJingga.x)
-			{
-				result = atan(param) * 180 / PI;
-			}
-			else
-			{
-				result = atan(param) * 180 / PI + 180;
-			}
-			printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
-			posText.x = mcJingga.x + delta.x/2;
-			posText.y = mcJingga.y + delta.y/2;
-			
-            ostringstream sample;
-            sample << result <<"*";
-            string text = sample.str();
-            putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-		}
-		
-		Point posText;
-		int spacing = 15;
-		posText.x = 0;
-		posText.y = spacing;
-		ostringstream sample;
-		sample << "Base" << detectStat[2];
-		string text = sample.str();
-		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-		posText.y += spacing;
-		
-		sample.str(""); // reset string to empty
-		sample.clear(); // clear any error flag that may set
-		sample << "End effector" << detectStat[1];
-		text = sample.str();
-		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-		posText.y += spacing;
-		
-		sample.str("");
-		sample.clear();
-		sample << "Object" << detectStat[0];
-		text = sample.str();
-		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-		posText.y += spacing;
-		
-		sample.str("");
-		sample.clear();
-		sample << "Theta" << result <<"*";
-		text = sample.str();
-		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
-		posText.y += spacing;
-		
         
-        imshow("Original", imgOriginal);
+        
+        imshow("Original", imgOriginal); //show the original image
+//   yea = findBiggestBlob(imgThresholded);
+//   imshow("Thresholded Image", imgThresholded); //show the thresholded image
 
         char c = cvWaitKey(10);
         switch (c) {
