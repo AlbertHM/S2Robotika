@@ -380,7 +380,7 @@ void Sim_main(void)
 		PDControl();
 		//printf("%f || %f \n", ddxcmd[0], ddxcmd[1]); //masih ok
 		inverse_jacobian();
-		//printf("%f || %f \n", ddq[0], ddq[1]); //error
+		//printf("%f || %f \n", ddq[0], ddq[1]); // sudah dibetulkan!
 		integral();
 		memory();
 		*tetha1=q[0];
