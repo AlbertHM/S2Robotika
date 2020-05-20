@@ -81,9 +81,9 @@ int main( int argc, char** argv )
 
     //namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
-    batasTh merah = {0, 67, 168, 255, 192, 255}; // Objek
-    batasTh hijau= {55, 92, 93, 255, 133, 255}; // End-effector
-    batasTh jingga = {87, 122, 155, 255, 132, 255}; // Base
+    batasTh merah = { 48,  93, 136, 255,  85, 255}; // Objek
+    batasTh hijau= { 87, 122, 155, 255, 132, 255}; // End-effector
+    batasTh jingga = {147, 195, 160, 255, 170, 255}; // Base
 
     Mat imgThrMerah, imgThrHijau, imgThrJinga;
     
@@ -111,7 +111,7 @@ int main( int argc, char** argv )
              cout << "Cannot read a frame from video stream" << endl;
              break;
         }
-/*
+		/*
         if (!imgOriginal.data) {
              cout << "Cannot read a image" << endl;
              break;
@@ -119,6 +119,7 @@ int main( int argc, char** argv )
 
         Mat imgHSV;
         cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+        //cout << "Here0" << endl;
         
         batasTh *aktif;
         aktif = &merah;
@@ -146,14 +147,22 @@ int main( int argc, char** argv )
         dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
         erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+        //cout << "Here1" << endl;
         
         std::vector<cv::Point> pointMerah, pointHijau, pointJingga;
+        //cout << "Here1.5" << endl; // error at 1.5 ~ 2
+        // apabila tidak didapatkan objek, dapat menyebabkan error Sehmentation error, Core dumped
+        
         pointMerah = CariRectangle(imgThrMerah);
         pointHijau = CariRectangle(imgThrHijau);
         pointJingga = CariRectangle(imgThrJinga);
+        //cout << "Here2" << endl;
         
         Point mcMerah, mcHijau, mcJingga;
+        //cout << "Here10" << endl;
         int detectStat[3] = {0,0,0};
+        //cout << "Here11" << endl;
+        // Objek
         if (pointMerah.size() > 0) {			
             cv::Rect brect = cv::boundingRect(cv::Mat(pointMerah).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
@@ -163,12 +172,13 @@ int main( int argc, char** argv )
             circle(imgOriginal, mcMerah, 4, Scalar(20,20,20));
             
             ostringstream sample;
-            sample << "Merah " << mcMerah.x << "," << mcMerah.y;
+            sample << "Objek " << mcMerah.x << "," << mcMerah.y;
             string text = sample.str();
             putText(imgOriginal,text, mcMerah, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
             
 			detectStat[0] = 1;
         }
+        // End-effector
         if (pointHijau.size() > 0) {
             cv::Rect brect = cv::boundingRect(cv::Mat(pointHijau).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
@@ -178,12 +188,13 @@ int main( int argc, char** argv )
             circle(imgOriginal, mcHijau, 4, Scalar(20,20,20));
             
             ostringstream sample;
-            sample << "Hijau " << mcHijau.x << "," << mcHijau.y;
+            sample << "End-E " << mcHijau.x << "," << mcHijau.y;
             string text = sample.str();
             putText(imgOriginal,text, mcHijau, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
             
 			detectStat[1] = 1;
         }
+        // Base
         if (pointJingga.size() > 0) {
             cv::Rect brect = cv::boundingRect(cv::Mat(pointJingga).reshape(2));
             cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
@@ -193,7 +204,7 @@ int main( int argc, char** argv )
             circle(imgOriginal, mcJingga, 4, Scalar(20,20,20));
             
             ostringstream sample;
-            sample << "Biru " << mcJingga.x << "," << mcJingga.y;
+            sample << "Base " << mcJingga.x << "," << mcJingga.y;
             string text = sample.str();
             putText(imgOriginal,text, mcJingga, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
             
@@ -222,7 +233,7 @@ int main( int argc, char** argv )
 			{
 				result = atan(param) * 180 / PI + 180;
 			}
-			printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
+			//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
 			posText.x = mcJingga.x + delta.x/2;
 			posText.y = mcJingga.y + delta.y/2;
 			
