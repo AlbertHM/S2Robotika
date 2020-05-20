@@ -43,18 +43,26 @@ std::vector<cv::Point> CariRectangle(Mat imgThresholded) {
     cv::findContours(imgThresholded, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     
     // Find biggest blob
-    for( int i = 0; i< contours.size(); i++ ) {// iterate through each contour. 
-        double a=contourArea( contours[i],false);  //  Find the area of contour
-        if(a>largest_area){
-            largest_area=a;
-            largest_contour_index=i;                //Store the index of largest contour
-        }
-    }
-    
-	for (size_t j = 0; j < contours[largest_contour_index].size(); j++) {
-		cv::Point p = contours[largest_contour_index][j];
-		points.push_back(p);
+    if(contours.size()>0)
+    {
+		// THIS IF solve segmentation error, core dumped
+		// When object not detected, there is nothing to push_back, lead to error
+		//cout << "1" << endl;
+		for( int i = 0; i< contours.size(); i++ ) {// iterate through each contour. 
+			double a=contourArea( contours[i],false);  //  Find the area of contour
+			if(a>largest_area){
+				largest_area=a;
+				largest_contour_index=i;                //Store the index of largest contour
+			}
+		}
+		//cout << "2" << endl;
+		for (size_t j = 0; j < contours[largest_contour_index].size(); j++) {
+			cv::Point p = contours[largest_contour_index][j];
+			points.push_back(p);
+		}
 	}
+	
+	//cout << "3" << endl;
     return points;
 }
 
