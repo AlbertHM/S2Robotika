@@ -125,7 +125,7 @@ GLfloat abu2[4]={0.5,0.5,0.5,1.0};
 
 // Image Processing
 
-//VideoCapture cap;
+VideoCapture cap;
 int deviceID = 0;
 //int apiID = cv::CAP_ANY;
 
@@ -420,21 +420,180 @@ void Sim_main(void)
 	unsigned int i,j,k;
 	glutSetWindow(window);
 	
-	/*
+	// ========================= Image Processing Section ==================================== //
+	
 	Mat imgOriginal;
 
-	//bool bSuccess = cap.read(imgOriginal); 
-	//imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);
-	
+	bool bSuccess = cap.read(imgOriginal); 
+	//imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);	
 	if (!bSuccess) 
 	{
 		 cout << "Cannot read a frame from video stream" << endl;
 	}
-	namedWindow( "Original", WINDOW_AUTOSIZE );
-	//imshow("Original", imgOriginal);
-	//waitKey(1);
 	
+	Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
+	cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+	//cout << "Here0" << endl;
+	
+	batasTh *aktif;
+	aktif = &merah;
+	inRange(imgHSV, Scalar(aktif->iLowH, aktif->iLowS, aktif->iLowV), Scalar(aktif->iHighH, aktif->iHighS, aktif->iHighV), imgThrMerah); //Threshold the image
+	aktif = &hijau;
+	inRange(imgHSV, Scalar(aktif->iLowH, aktif->iLowS, aktif->iLowV), Scalar(aktif->iHighH, aktif->iHighS, aktif->iHighV), imgThrHijau); //Threshold the image
+	aktif = &jingga;
+	inRange(imgHSV, Scalar(aktif->iLowH, aktif->iLowS, aktif->iLowV), Scalar(aktif->iHighH, aktif->iHighS, aktif->iHighV), imgThrJinga); //Threshold the image
+	/*
+	imshow("Thresholded imgThrMerah", imgThrMerah); //show the thresholded image
+	imshow("Thresholded imgThrHijau", imgThrHijau); //show the thresholded image
+	imshow("Thresholded imgThrJinga", imgThrJinga); //show the thresholded image
 	*/
+	erode(imgThrMerah,  imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	dilate(imgThrMerah, imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	dilate(imgThrMerah, imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	erode(imgThrMerah,  imgThrMerah, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	
+	erode(imgThrHijau,  imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	dilate(imgThrHijau, imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	dilate(imgThrHijau, imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	erode(imgThrHijau,  imgThrHijau, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	
+	erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+	erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+	//cout << "Here1" << endl;
+	
+	std::vector<cv::Point> pointMerah, pointHijau, pointJingga;
+	//cout << "Here1.5" << endl; // error at 1.5 ~ 2
+	// apabila tidak didapatkan objek, dapat menyebabkan error Sehmentation error, Core dumped
+	
+	pointMerah = CariRectangle(imgThrMerah);
+	pointHijau = CariRectangle(imgThrHijau);
+	pointJingga = CariRectangle(imgThrJinga);
+	//cout << "Here2" << endl;
+	
+	Point mcMerah, mcHijau, mcJingga;
+	//cout << "Here10" << endl;
+	int detectStat[3] = {0,0,0};
+	//cout << "Here11" << endl;
+	// Objek
+	if (pointMerah.size() > 0) {			
+		cv::Rect brect = cv::boundingRect(cv::Mat(pointMerah).reshape(2));
+		cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
+		
+		mcMerah.x = brect.x + (brect.width/2);
+		mcMerah.y = brect.y + (brect.height/2);
+		circle(imgOriginal, mcMerah, 4, Scalar(20,20,20));
+		
+		ostringstream sample;
+		sample << "Objek " << mcMerah.x << "," << mcMerah.y;
+		string text = sample.str();
+		putText(imgOriginal,text, mcMerah, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+		
+		detectStat[0] = 1;
+	}
+	// End-effector
+	if (pointHijau.size() > 0) {
+		cv::Rect brect = cv::boundingRect(cv::Mat(pointHijau).reshape(2));
+		cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
+		
+		mcHijau.x = brect.x + (brect.width/2);
+		mcHijau.y = brect.y + (brect.height/2);
+		circle(imgOriginal, mcHijau, 4, Scalar(20,20,20));
+		
+		ostringstream sample;
+		sample << "End-E " << mcHijau.x << "," << mcHijau.y;
+		string text = sample.str();
+		putText(imgOriginal,text, mcHijau, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+		
+		detectStat[1] = 1;
+	}
+	// Base
+	if (pointJingga.size() > 0) {
+		cv::Rect brect = cv::boundingRect(cv::Mat(pointJingga).reshape(2));
+		cv::rectangle(imgOriginal, brect.tl(), brect.br(), cv::Scalar(100, 100, 200), 2, CV_AA);
+		
+		mcJingga.x = brect.x + (brect.width/2);
+		mcJingga.y = brect.y + (brect.height/2);
+		circle(imgOriginal, mcJingga, 4, Scalar(20,20,20));
+		
+		ostringstream sample;
+		sample << "Base " << mcJingga.x << "," << mcJingga.y;
+		string text = sample.str();
+		putText(imgOriginal,text, mcJingga, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+		
+		detectStat[2] = 1;
+	}
+	double result;
+	// Draw link
+	if(detectStat[1] && detectStat[2])
+	{
+		line(imgOriginal, mcJingga, mcHijau, Scalar(100,100,200), 4);
+
+		Point delta, posText;
+		double param;//, result;
+		delta.x = mcHijau.x-mcJingga.x;
+		delta.y = mcHijau.y-mcJingga.y;
+		param = (-1.0*delta.y)/(1.0*delta.x);
+		if(mcHijau.x == mcJingga.x)
+		{
+			result = 90.0;
+		}
+		else if(mcHijau.x > mcJingga.x)
+		{
+			result = atan(param) * 180 / PI;
+		}
+		else
+		{
+			result = atan(param) * 180 / PI + 180;
+		}
+		//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
+		posText.x = mcJingga.x + delta.x/2;
+		posText.y = mcJingga.y + delta.y/2;
+		
+		ostringstream sample;
+		sample << result <<"*";
+		string text = sample.str();
+		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	}
+	
+	Point posText;
+	int spacing = 15;
+	posText.x = 0;
+	posText.y = spacing;
+	ostringstream sample;
+	sample << "Base" << detectStat[2];
+	string text = sample.str();
+	putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	posText.y += spacing;
+	
+	sample.str(""); // reset string to empty
+	sample.clear(); // clear any error flag that may set
+	sample << "End effector" << detectStat[1];
+	text = sample.str();
+	putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	posText.y += spacing;
+	
+	sample.str("");
+	sample.clear();
+	sample << "Object" << detectStat[0];
+	text = sample.str();
+	putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	posText.y += spacing;
+	
+	sample.str("");
+	sample.clear();
+	sample << "Theta" << result <<"*";
+	text = sample.str();
+	putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	posText.y += spacing;
+	
+	namedWindow( "Original", WINDOW_AUTOSIZE );
+	imshow("Original", imgOriginal);
+	waitKey(1);
+	
+	
+	// ========================= Image Processing Section ==================================== //
 	
 	
 	forward_kinematic();
@@ -637,7 +796,7 @@ int main(int argc, char** argv)
 	window = glutCreateWindow ("Simple Window");
 	
 	/* Open Camera */
-	/*
+	
 	cap.open(deviceID);
 	if(!cap.isOpened())
 	{
