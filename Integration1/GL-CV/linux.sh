@@ -20,7 +20,7 @@ if [ $# -gt 0 ] ; then
 else
 	for i in *.c; do
 	    echo "compiling $i"
-	    gcc -ggdb `pkg-config --cflags opencv` -o `basename $i .c` $i `pkg-config --libs opencv` -lm;
+	    g++ -ggdb `pkg-config --cflags opencv` -o `basename $i .c` $i `pkg-config --libs opencv` -lm;
 	done
 	for i in *.cpp; do
 	    echo "compiling $i"

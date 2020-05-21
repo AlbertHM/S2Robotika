@@ -9,6 +9,7 @@
 *////////////////////////////////////////////////////////////
 
 #include <stdio.h> 
+#include <iostream>
 #include <stdlib.h> 
 #include <GL/glut.h> // Header File For The GLUT Library
 #include <GL/gl.h> // Header File For The OpenGL32 Library
@@ -19,7 +20,14 @@
 #include <errno.h>			/* Error number definitions */
 #include <termios.h>		/* POSIX terminal control definitions */
 #include <sys/time.h>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "planar.c"
+
+using namespace cv;
+using namespace std;
+
+#define PI 3.14159265
 
 /* ascii code for the escape key */
 #define ESCkey	27
@@ -114,6 +122,55 @@ GLfloat yellow2[4]={0.2, 0.2, 0.0, 1.0};
 GLfloat pink6[4] ={0.8, 0.55, 0.6, 1.0};
 GLfloat yellow5[4]={0.8, 0.8, 0.0, 1.0};
 GLfloat abu2[4]={0.5,0.5,0.5,1.0};
+
+// Image Processing
+
+typedef struct {
+    int iLowH;
+    int iHighH;
+    int iLowS;
+    int iHighS;
+    int iLowV;
+    int iHighV;
+} batasTh;
+
+batasTh merah = { 48,  93, 136, 255,  85, 255}; // Objek
+batasTh hijau= { 87, 122, 155, 255, 132, 255}; // End-effector
+batasTh jingga = {147, 195, 160, 255, 170, 255}; // Base
+
+vector<Point> CariRectangle(Mat imgThresholded) {
+    int largest_area=0;
+    int largest_contour_index=0;
+    
+    vector<vector<Point> > contours; // Vector for storing contour
+    vector<Point> points;
+    vector<Vec4i> hierarchy;
+    
+    cv::findContours(imgThresholded, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+    
+    // Find biggest blob
+    if(contours.size()>0)
+    {
+		// THIS IF solve segmentation error, core dumped
+		// When object not detected, there is nothing to push_back, lead to error
+		//cout << "1" << endl;
+		for( int i = 0; i< contours.size(); i++ ) {// iterate through each contour. 
+			double a=contourArea( contours[i],false);  //  Find the area of contour
+			if(a>largest_area){
+				largest_area=a;
+				largest_contour_index=i;                //Store the index of largest contour
+			}
+		}
+		//cout << "2" << endl;
+		for (size_t j = 0; j < contours[largest_contour_index].size(); j++) {
+			cv::Point p = contours[largest_contour_index][j];
+			points.push_back(p);
+		}
+	}
+	
+	//cout << "3" << endl;
+    return points;
+}
 
 
 void  drawOneLine(double x1, double y1, double x2, double y2) 
@@ -236,7 +293,7 @@ void display(void)
    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT) ; // Clear The Screen and The Depth Buffer 
    //glLoadIdentity();  // Reset View
    disp_floor();
-   hitung_robot();
+   //hitung_robot();
    disp_robot();
 
    /* since window is double buffered, 
@@ -387,6 +444,11 @@ void Sim_main(void)
 		*tetha2=q[1];
 		fprintf(ff,"%d, %.4f, %.4f, %.4f, %.4f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
 		fprintf(gpdata,"%d, %.3f, %.3f, %.3f, %.3f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
+		if(counter == step)
+		{
+			xr[0] = xakhir[0];
+			xr[1] = xakhir[1];
+		}
 		sleep(0.02);
 	}
   
@@ -413,10 +475,12 @@ void Sim_main(void)
 		send2 = 180;
 	}
 	*/
+	
+	/*
 	printf("## %u ## %u ##",(unsigned)send1,(unsigned)send2);
 	write(fd,&header,sizeof(header));//header
 	write(fd,&send1,sizeof(send1));//data sudut 1
-	write(fd,&send2,sizeof(send2));//data sudut 1
+	write(fd,&send2,sizeof(send2));//data sudut 1*/
 	
   
   display();
@@ -528,41 +592,51 @@ void init(void)
 // Main Program
 int main(int argc, char** argv)
 {
- // Initialize GLUT
-   /* Initialize GLUT state - glut will take any command line arguments 
-      see summary on OpenGL Summary */  
-   glutInit (&argc, argv);
-   fd = open_port();
-   init_port(fd);
-   ff = fopen("Data.csv","w");
-   gpdata = fopen("result.dat","w");
+	// Initialize GLUT
+	/* Initialize GLUT state - glut will take any command line arguments 
+	see summary on OpenGL Summary */  
+	glutInit (&argc, argv);
+	//fd = open_port();
+	//init_port(fd);
+	ff = fopen("Data.csv","w");
+	gpdata = fopen("result.dat","w");
 
-   /* Select type of Display mode:   
-      Double buffer 
-      RGBA color
-      Alpha components supported 
-      Depth buffer */  
-   //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB );
-   /* set a 400 (width) x 400 (height) window and its position */
-   glutInitWindowSize(img_width,img_height);	
-   glutInitWindowPosition (40, 100);
+	/* Select type of Display mode:   
+		Double buffer 
+		RGBA color
+		Alpha components supported 
+		Depth buffer 
+	*/  
+	//glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB );
+	/* set a 400 (width) x 400 (height) window and its position */
+	glutInitWindowSize(img_width,img_height);	
+	glutInitWindowPosition (40, 100);
 
-   /* Open a window */  
-   window = glutCreateWindow ("Simple Window");
+	/* Open a window */  
+	window = glutCreateWindow ("Simple Window");
+	
+	/* Open Camera */
+	VideoCapture cap(0); //capture the video from web cam
 
-   /* Initialize our window. */
-   init() ;
-   camera_window(); 
-   init_robot();
-   forward_kinematic();
-   xakhir[0] = xr[0]; 
-   xakhir[1] = xr[1];
+    if ( !cap.isOpened() )  // if not success, exit program
+    {
+         cout << "Cannot open the web cam" << endl;
+         return -1;
+    }
+   
+	/* Initialize our window. */
+	init() ;
+	camera_window(); 
+	init_robot();
+	forward_kinematic();
+	xakhir[0] = xr[0]; 
+	xakhir[1] = xr[1];
 
-   /* Register the function to do all our OpenGL drawing. */
-   glutIdleFunc(&Sim_main); // fungsi untuk simulasi utama
+	/* Register the function to do all our OpenGL drawing. */
+	glutIdleFunc(&Sim_main); // fungsi untuk simulasi utama
 
-   /* Start Event Processing Engine */ 
-   glutMainLoop () ;
-   return 0 ;
+	/* Start Event Processing Engine */ 
+	glutMainLoop () ;
+	return 0 ;
 }           
