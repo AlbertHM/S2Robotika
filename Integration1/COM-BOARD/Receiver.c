@@ -140,8 +140,7 @@ EncodeIPAddress(char *s, struct sockaddr_in *sin)
 }
 
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	// =========== INIT Roboard =========== //
 	

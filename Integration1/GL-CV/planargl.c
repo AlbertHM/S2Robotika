@@ -125,6 +125,10 @@ GLfloat abu2[4]={0.5,0.5,0.5,1.0};
 
 // Image Processing
 
+//VideoCapture cap;
+int deviceID = 0;
+//int apiID = cv::CAP_ANY;
+
 typedef struct {
     int iLowH;
     int iHighH;
@@ -416,6 +420,22 @@ void Sim_main(void)
 	unsigned int i,j,k;
 	glutSetWindow(window);
 	
+	/*
+	Mat imgOriginal;
+
+	//bool bSuccess = cap.read(imgOriginal); 
+	//imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);
+	
+	if (!bSuccess) 
+	{
+		 cout << "Cannot read a frame from video stream" << endl;
+	}
+	namedWindow( "Original", WINDOW_AUTOSIZE );
+	//imshow("Original", imgOriginal);
+	//waitKey(1);
+	
+	*/
+	
 	
 	forward_kinematic();
 	if((xr[0] != xakhir[0]) || (xr[1] != xakhir[1]))
@@ -617,13 +637,13 @@ int main(int argc, char** argv)
 	window = glutCreateWindow ("Simple Window");
 	
 	/* Open Camera */
-	VideoCapture cap(0); //capture the video from web cam
-
-    if ( !cap.isOpened() )  // if not success, exit program
-    {
-         cout << "Cannot open the web cam" << endl;
-         return -1;
-    }
+	/*
+	cap.open(deviceID);
+	if(!cap.isOpened())
+	{
+		cerr << "Error : Unable to open camera \n";
+		return -1;
+	}
    
 	/* Initialize our window. */
 	init() ;

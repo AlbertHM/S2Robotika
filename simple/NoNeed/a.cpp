@@ -57,14 +57,14 @@ bool servoSistemAktif = false;
 
 int main( int argc, char** argv )
  {
-	 /*
+	 
     VideoCapture cap(0); //capture the video from web cam
 
     if ( !cap.isOpened() )  // if not success, exit program
     {
          cout << "Cannot open the web cam" << endl;
          return -1;
-    }*/
+    }
 
     namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
@@ -96,14 +96,14 @@ int main( int argc, char** argv )
     while (true) {
         Mat imgOriginal;
 
-        //bool bSuccess = cap.read(imgOriginal); // read a new frame from video
-        imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);
+        bool bSuccess = cap.read(imgOriginal); // read a new frame from video
+        //imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);
         //bool bSuccess = imread("SamplePict.png", CV_LOAD_IMAGE_COLOR);
 
-        /*if (!bSuccess) {
+        if (!bSuccess) {
              cout << "Cannot read a frame from video stream" << endl;
              break;
-        }*/
+        }
         if (!imgOriginal.data) {
              cout << "Cannot read a image" << endl;
              break;

@@ -1,5 +1,5 @@
 #include <math.h>
-#include "serial.h"
+//#include "serial.h"
 #define PI		3.14159265358
 #define DTR 	PI/180.0				   // Conversi degree to radian
 #define RTD 	180.0/PI				   // Conversi degree to radian
@@ -47,7 +47,7 @@ void fncgerak(int count)
 		}
 	}
 }
-
+/*
 void Retrieve_serial(void) {
   int retval=1, i,j,k,l;
 
@@ -78,4 +78,4 @@ void Retrieve_serial(void) {
 void hitung_robot() { 
 	Retrieve_serial();
 	
-}
+}*/

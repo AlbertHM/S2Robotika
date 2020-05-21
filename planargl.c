@@ -236,7 +236,7 @@ void display(void)
    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT) ; // Clear The Screen and The Depth Buffer 
    //glLoadIdentity();  // Reset View
    disp_floor();
-   hitung_robot();
+   //hitung_robot();
    disp_robot();
 
    /* since window is double buffered, 
@@ -413,10 +413,11 @@ void Sim_main(void)
 		send2 = 180;
 	}
 	*/
+/*
 	printf("## %u ## %u ##",(unsigned)send1,(unsigned)send2);
 	write(fd,&header,sizeof(header));//header
 	write(fd,&send1,sizeof(send1));//data sudut 1
-	write(fd,&send2,sizeof(send2));//data sudut 1
+	write(fd,&send2,sizeof(send2));//data sudut 1*/
 	
   
   display();
@@ -532,8 +533,8 @@ int main(int argc, char** argv)
    /* Initialize GLUT state - glut will take any command line arguments 
       see summary on OpenGL Summary */  
    glutInit (&argc, argv);
-   fd = open_port();
-   init_port(fd);
+   //fd = open_port();
+   //init_port(fd);
    ff = fopen("Data.csv","w");
    gpdata = fopen("result.dat","w");
 
