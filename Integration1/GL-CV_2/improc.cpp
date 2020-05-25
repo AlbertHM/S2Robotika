@@ -16,10 +16,11 @@ typedef struct {
 } batasTh;
 
 batasTh merah = { 48,  93, 136, 255,  85, 255}; // Objek
-batasTh hijau= { 87, 122, 155, 255, 132, 255}; // End-effector
+batasTh hijau = { 87, 122, 155, 255, 132, 255}; // End-effector
 batasTh jingga = {147, 195, 160, 255, 170, 255}; // Base
 
-vector<Point> CariRectangle(Mat imgThresholded) {
+vector<Point> CariRectangle(Mat imgThresholded) 
+{
     int largest_area=0;
     int largest_contour_index=0;
     
@@ -34,30 +35,28 @@ vector<Point> CariRectangle(Mat imgThresholded) {
     {
 		// THIS IF solve segmentation error, core dumped
 		// When object not detected, there is nothing to push_back, lead to error
-		//cout << "1" << endl;
-		for( int i = 0; i< contours.size(); i++ ) {// iterate through each contour. 
-			double a=contourArea( contours[i],false);	//  Find the area of contour
-			if(a>largest_area){
+		for( int i = 0; i< contours.size(); i++ ) 		// Iterate through each contour. 
+		{
+			double a=contourArea( contours[i],false);	// Find the area of contour
+			if(a>largest_area)
+			{
 				largest_area=a;
-				largest_contour_index=i;                //Store the index of largest contour
+				largest_contour_index=i;                // Store the index of largest contour
 			}
 		}
-		//cout << "2" << endl;
-		for (size_t j = 0; j < contours[largest_contour_index].size(); j++) {
+		for (size_t j = 0; j < contours[largest_contour_index].size(); j++)
+		{
 			cv::Point p = contours[largest_contour_index][j];
 			points.push_back(p);
 		}
 	}
-	
-	//cout << "3" << endl;
     return points;
 }
 
 void Improc(Mat imgOriginal)
 {
-Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
+	Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
 	cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
-	//cout << "Here0" << endl;
 	
 	batasTh *aktif;
 	aktif = &merah;
@@ -85,21 +84,17 @@ Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
 	dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
 	dilate(imgThrJinga, imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
 	erode(imgThrJinga,  imgThrJinga, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
-	//cout << "Here1" << endl;
-	
-	std::vector<cv::Point> pointMerah, pointHijau, pointJingga;
-	//cout << "Here1.5" << endl; // error at 1.5 ~ 2
-	// apabila tidak didapatkan objek, dapat menyebabkan error Sehmentation error, Core dumped
+		
+	std::vector<cv::Point> pointMerah, pointHijau, pointJingga;	
 	
 	pointMerah = CariRectangle(imgThrMerah);
 	pointHijau = CariRectangle(imgThrHijau);
-	pointJingga = CariRectangle(imgThrJinga);
-	//cout << "Here2" << endl;
+	pointJingga = CariRectangle(imgThrJinga);	
 	
 	Point mcMerah, mcHijau, mcJingga;
-	//cout << "Here10" << endl;
-	int detectStat[3] = {0,0,0};
-	//cout << "Here11" << endl;
+	
+	int detectStat[3] = {0,0,0}; // Objek, End-E, Base
+	
 	// Objek
 	if (pointMerah.size() > 0) {			
 		cv::Rect brect = cv::boundingRect(cv::Mat(pointMerah).reshape(2));
@@ -149,7 +144,9 @@ Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
 		detectStat[2] = 1;
 	}
 	double result;
-	// Draw link
+	double theta_obj_base;
+	
+	// Draw robot link
 	if(detectStat[1] && detectStat[2])
 	{
 		line(imgOriginal, mcJingga, mcHijau, Scalar(100,100,200), 4);
@@ -177,6 +174,38 @@ Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
 		
 		ostringstream sample;
 		sample << result <<"*";
+		string text = sample.str();
+		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
+	}
+	
+	// Draw line base-object
+	if(detectStat[0] && detectStat[2])
+	{
+		line(imgOriginal, mcJingga, mcMerah, Scalar(100,100,200), 4);
+
+		Point delta, posText;
+		double param;
+		delta.x = mcMerah.x-mcJingga.x;
+		delta.y = mcMerah.y-mcJingga.y;
+		param = (-1.0*delta.y)/(1.0*delta.x);
+		if(mcMerah.x == mcJingga.x)
+		{
+			theta_obj_base = 90.0;
+		}
+		else if(mcMerah.x > mcJingga.x)
+		{
+			theta_obj_base = atan(param) * 180 / PI;
+		}
+		else
+		{
+			theta_obj_base = atan(param) * 180 / PI + 180;
+		}
+		//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
+		posText.x = mcJingga.x + delta.x/2;
+		posText.y = mcJingga.y + delta.y/2;
+		
+		ostringstream sample;
+		sample << theta_obj_base <<"*";
 		string text = sample.str();
 		putText(imgOriginal,text, posText, FONT_HERSHEY_SIMPLEX,0.5,Scalar(0,0,0),1);
 	}
