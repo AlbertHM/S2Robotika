@@ -49,7 +49,9 @@ char debug=0;
 
 int gerak = 0;
 int counter = 0;
-int TS = 0;
+bool JS = 0; // Joint space flag
+bool TS = 0; // Task space flag
+bool VS = 0; // Visual-Servoing flag
 
 // Param robot
 float l[2] = {1,1};
@@ -64,11 +66,18 @@ float step = 50 * Period;
 
 float xr[2], xawal[2], xakhir[2],xcmd[2],xcmdold[2];
 float dxcmd[2], dxcmdold[2], ddxcmd[2];
-float q[2];
-float dq[2], ddq[2];
+float q[2], dq[2], ddq[2];
 float Jb1[2], Jb2[2], iJb1[2], iJb2[2];
 float det;
 float dt = 0.02;
+
+// Param Joint Space Spesific
+float KpJ = 0.2;
+float KdJ = 0.1;
+
+float qawal[2], qakhir[2], qcmd[2];
+float dqold[2], dqcmd[2], ddqcmd[2];
+float qcontrol[2];
 
 
 void Sim_main(void); // Deklarasi lebih awal agar bisa diakses oleh fungsi sebelumnya
@@ -76,11 +85,10 @@ void display(void); // fungsi untuk menampilkan gambar robot / tampilan camera a
 void camera_result(void); // fungsi untuk menampilkan hasil olah camera
 
 // Image Processing
-
 VideoCapture cap;
 int deviceID = 0;
 
-//Task Space Control
+// Task Space Control
 void forward_kinematic()
 {
 	xr[0] = l[0]*cos(*tetha1) + l[1]*cos(*tetha1+*tetha2);
@@ -90,7 +98,18 @@ void forward_kinematic()
 void trajectory_init()
 {	
 	forward_kinematic();
+	counter = 0;
 	
+	// For Joint Space
+	for(int u=0; u<2; u++)
+	{
+		qawal[u] = q[u];
+		dqcmd[u] = 0;
+		dqold[u] = 0;
+		ddqcmd[u] = 0;
+	}	
+	
+	// For Task Space
 	for(int u=0; u<2; u++)
 	{
 		xawal[u] = xr[u];
@@ -164,6 +183,27 @@ void memory()
 	}	
 }
 
+void joint_space(int u)
+{
+	// Trajectory planning
+	qcmd[u] = qawal[u] + (qakhir[u] - qawal[u]) * counter/step;
+	// Derivative
+	dqcmd[u] = (qcmd[u] - q[u]);
+	ddqcmd[u] = (dqcmd[u] - dqold[u]);
+	// Control signal
+	qcontrol[u] = KpJ * dqcmd[u] + KdJ * ddqcmd[u];
+	// Integral
+	dq[u] += qcontrol[u];
+	q[u] += dq[u];
+	// Memory
+	dqold[u] = dqcmd[u];
+}
+
+void visual_servoing()
+{
+	int i = 0;
+}
+
 void Sim_main(void)
 {
 	unsigned long Xr=0,Yr=0, Xg=0,Yg=0, Xb=0,Yb=0; // titik untuk menghitung sum
@@ -172,54 +212,74 @@ void Sim_main(void)
 	unsigned int i,j,k;
 	glutSetWindow(window);
 	
+	/*
 	Mat imgOriginal;
 
 	bool bSuccess = cap.read(imgOriginal); 
 	//imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);	
 	if (!bSuccess) 
 	{
-		 cout << "Cannot read a frame from video stream" << endl;
+		cout << "Cannot read a frame from video stream" << endl;
 	}
 	else
 	{	
 		Improc(imgOriginal);
 	}
-	
+	*/
 	forward_kinematic();
-	if((xr[0] != xakhir[0]) || (xr[1] != xakhir[1]))
-	{	
-		q[0] = *tetha1;
-		q[1] = *tetha2;
-		//printf("%f\n",xr[0]);
-		//printf("Theta %f || %f \n", q[0]*RTD, q[1]*RTD);
-		forward_kinematic();
-		printf("[%d]Xr %f || %f \n", counter, xr[0], xr[1]);
-		if(counter!=step)
+	if(JS)
+	{
+		joint_space(0);
+		if(counter == step)
+		{
+			JS = 0;
+		}
+		else if(counter < step)
 		{
 			counter++;
 		}
-		trajectory_plan();
-		//printf("%f || %f \n", xcmd[0], xcmd[1]); //ok
-		derivative();
-		//printf("%f || %f \n", ddxcmd[0], ddxcmd[1]); //ok
-		PDControl();
-		//printf("%f || %f \n", ddxcmd[0], ddxcmd[1]); //masih ok
-		inverse_jacobian();
-		//printf("%f || %f \n", ddq[0], ddq[1]); // sudah dibetulkan!
-		integral();
-		memory();
-		*tetha1=q[0];
-		*tetha2=q[1];
-		fprintf(ff,"%d, %.4f, %.4f, %.4f, %.4f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
-		fprintf(gpdata,"%d, %.3f, %.3f, %.3f, %.3f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
-		if(counter == step)
-		{
-			xr[0] = xakhir[0];
-			xr[1] = xakhir[1];
-		}
-		sleep(0.02);
+		cout << counter << "_" << qawal[0] << "_" << q[0] << "_" << qakhir[0] << endl;
 	}
-  
+	if(TS)
+	{
+		if((xr[0] != xakhir[0]) || (xr[1] != xakhir[1]))
+		{	
+			q[0] = *tetha1;
+			q[1] = *tetha2;
+			//printf("%f\n",xr[0]);
+			//printf("Theta %f || %f \n", q[0]*RTD, q[1]*RTD);
+			forward_kinematic();
+			printf("[%d]Xr %f || %f \n", counter, xr[0], xr[1]);
+			if(counter!=step)
+			{
+				counter++;
+			}
+			trajectory_plan();
+			//printf("%f || %f \n", xcmd[0], xcmd[1]); //ok
+			derivative();
+			//printf("%f || %f \n", ddxcmd[0], ddxcmd[1]); //ok
+			PDControl();
+			//printf("%f || %f \n", ddxcmd[0], ddxcmd[1]); //masih ok
+			inverse_jacobian();
+			//printf("%f || %f \n", ddq[0], ddq[1]); // sudah dibetulkan!
+			integral();
+			memory();
+			fprintf(ff,"%d, %.4f, %.4f, %.4f, %.4f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
+			fprintf(gpdata,"%d, %.3f, %.3f, %.3f, %.3f, \n", counter, xcmd[0], xr[0], xcmd[1], xr[1]);
+			sleep(0.02);
+			if(counter == step)
+			{
+				TS = 0;
+			}
+		}
+	}
+	if(VS)
+	{
+		VS = 0;
+	}
+	
+	*tetha1=q[0];
+	*tetha2=q[1];
 	
 	header = 0xF5;
 	send1 = *tetha1*RTD + 90;
@@ -299,8 +359,12 @@ void keyboard(unsigned char key, int i, int j)
 	  case 'f': *tetha2-=10*DTR; break;
 	  case 'H': gerak = 1; break;
 	  case 'h': gerak = 0; break;
-	  //case 'z': TS = 1; xfinal[0] = x[0]+0.1; xfinal[1] = x[1]+0.1; break;
-	  case 'z': trajectory_init(); xakhir[0] = xr[0]-0.1; xakhir[1] = xr[1]-0.1; counter = 0; break;
+	  case 'Z': TS = 1; trajectory_init(); xakhir[0] = xr[0]+0.1; xakhir[1] = xr[1]+0.1; break;
+	  case 'z': TS = 1; trajectory_init(); xakhir[0] = xr[0]-0.1; xakhir[1] = xr[1]-0.1; break;
+	  case 'X': JS = 1; trajectory_init(); qakhir[0] = q[0]+(10*DTR); break;
+	  case 'x': JS = 1; break;
+	  case 'C': VS = 1; break;
+	  case 'c': VS = 1; break;
       //case 'd': debug=(~debug) & 0x1; break;
       //case 's': glutIdleFunc(NULL); break;
       //case 'r': glutIdleFunc(&Sim_main); break;
@@ -383,8 +447,7 @@ int main(int argc, char** argv)
 	/* Open a window */  
 	window = glutCreateWindow ("Simple Window");
 	
-	/* Open Camera */
-	
+	/* Open Camera */	
 	cap.open(deviceID);
 	if(!cap.isOpened())
 	{
