@@ -212,7 +212,7 @@ void Sim_main(void)
 	unsigned int i,j,k;
 	glutSetWindow(window);
 	
-	/*
+	
 	Mat imgOriginal;
 
 	bool bSuccess = cap.read(imgOriginal); 
@@ -225,7 +225,7 @@ void Sim_main(void)
 	{	
 		Improc(imgOriginal);
 	}
-	*/
+	
 	forward_kinematic();
 	if(JS)
 	{
@@ -362,7 +362,7 @@ void keyboard(unsigned char key, int i, int j)
 	  case 'Z': TS = 1; trajectory_init(); xakhir[0] = xr[0]+0.1; xakhir[1] = xr[1]+0.1; break;
 	  case 'z': TS = 1; trajectory_init(); xakhir[0] = xr[0]-0.1; xakhir[1] = xr[1]-0.1; break;
 	  case 'X': JS = 1; trajectory_init(); qakhir[0] = q[0]+(10*DTR); break;
-	  case 'x': JS = 1; break;
+	  case 'x': JS = 1; trajectory_init(); qakhir[0] = q[0]-(10*DTR); break;
 	  case 'C': VS = 1; break;
 	  case 'c': VS = 1; break;
       //case 'd': debug=(~debug) & 0x1; break;
