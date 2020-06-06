@@ -64,8 +64,8 @@ GLfloat abu2[4]={0.5,0.5,0.5,1.0};
 
 void init_robot()
 {
-	q1=10.0 * DTR;
-	q2=30.0 * DTR;
+	q1=0.0 * DTR;
+	q2=0.0 * DTR;
 }
 
 

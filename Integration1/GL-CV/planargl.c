@@ -159,7 +159,7 @@ vector<Point> CariRectangle(Mat imgThresholded) {
 		// When object not detected, there is nothing to push_back, lead to error
 		//cout << "1" << endl;
 		for( int i = 0; i< contours.size(); i++ ) {// iterate through each contour. 
-			double a=contourArea( contours[i],false);  //  Find the area of contour
+			double a=contourArea( contours[i],false);	//  Find the area of contour
 			if(a>largest_area){
 				largest_area=a;
 				largest_contour_index=i;                //Store the index of largest contour

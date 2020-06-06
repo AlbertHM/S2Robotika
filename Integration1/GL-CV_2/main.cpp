@@ -281,11 +281,11 @@ void Sim_main(void)
 	*tetha1=q[0];
 	*tetha2=q[1];
 	
+	/*
 	header = 0xF5;
 	send1 = *tetha1*RTD + 90;
 	send2 = *tetha2*RTD + 90;
 	printf("## %u ## %u ##\n",(unsigned)send1,(unsigned)send2);
-	/*
 	if(send1 < 0)
 	{
 		send1 = 0;
@@ -459,7 +459,9 @@ int main(int argc, char** argv)
 	init() ;
 	camera_window(); 
 	init_robot();
-	forward_kinematic();
+	forward_kinematic();	
+	q[0] = *tetha1;
+	q[1] = *tetha2;
 	xakhir[0] = xr[0]; 
 	xakhir[1] = xr[1];
 
