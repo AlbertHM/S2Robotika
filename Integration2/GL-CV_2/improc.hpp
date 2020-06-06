@@ -16,8 +16,8 @@ typedef struct {
 } batasTh;
 
 typedef struct{
-	int d_l; // Detect Link
-	int d_o; // Detect Object
+	int d_l = 0; // Detect Link
+	int d_o = 0; // Detect Object
 	double deg_link; // Degree Link
 	double deg_obj; // Degree Object
 } dataImProc;
@@ -60,7 +60,7 @@ vector<Point> CariRectangle(Mat imgThresholded)
     return points;
 }
 
-void Improc(Mat imgOriginal, dataImproc *dataip)
+void Improc(Mat imgOriginal, dataImProc *dataip)
 {
 	Mat imgHSV, imgThrMerah, imgThrHijau, imgThrJinga;
 	cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
@@ -176,7 +176,7 @@ void Improc(Mat imgOriginal, dataImproc *dataip)
 			result = atan(param) * 180 / PI + 180;
 		}
 		
-		dataip.deg_link = result;
+		dataip->deg_link = result;
 		
 		//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
 		posText.x = mcJingga.x + delta.x/2;

@@ -87,13 +87,13 @@ void camera_result(void); // fungsi untuk menampilkan hasil olah camera
 // Image Processing
 VideoCapture cap;
 int deviceID = 0;
-
+/*
 typedef struct{
 	int d_l; // Detect Link
 	int d_o; // Detect Object
 	double deg_link; // Degree Link
 	double deg_obj; // Degree Object
-} dataImProc;
+} dataImProc; */
 
 // Task Space Control
 void forward_kinematic()
@@ -223,7 +223,7 @@ void Sim_main(void)
 	Mat imgOriginal;
 	
 	dataImProc dataip;
-	dataImproc *dataipptr = &dataip;
+	dataImProc *dataipptr = &dataip;
 
 	bool bSuccess = cap.read(imgOriginal); 
 	//imgOriginal = imread("SamplePict2.png", CV_LOAD_IMAGE_COLOR);	
