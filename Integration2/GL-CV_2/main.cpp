@@ -87,6 +87,7 @@ void camera_result(void); // fungsi untuk menampilkan hasil olah camera
 // Image Processing
 VideoCapture cap;
 int deviceID = 0;
+int d_goal = 0;
 /*
 typedef struct{
 	int d_l; // Detect Link
@@ -285,10 +286,45 @@ void Sim_main(void)
 	}
 	if(VS)
 	{
-		VS = 0;
+		if(counter == 0)
+		{
+			// Init visual servoing
+			d_goal = 0;
+			if(dataip.d_l == 0)
+			{
+				cout << "Link not detected, operation aborted" << endl;
+				VS = 0;
+			}
+			else if(dataip.d_o == 0)
+			{
+				cout << "Object not detected, operation aborted" << endl;
+				VS = 0;
+			}
+			else
+			{
+				q[0] = dataip.deg_link * DTR;	
+				qawal[0] = q[0];
+				qakhir[0] = dataip.deg_obj * DTR;
+				d_goal = 1;
+			}
+			
+		}
+		if(d_goal)
+		{
+			joint_space(0);
+		}
+		
+		if(counter < step)
+		{
+			counter++;
+		}
+		else if(counter == step)
+		{
+			VS = 0;
+		}
 	}
 	
-	cout << dataip.deg_link << endl;
+	//cout << dataip.deg_link << endl;
 	
 	*tetha1=q[0];
 	*tetha2=q[1];
@@ -375,8 +411,10 @@ void keyboard(unsigned char key, int i, int j)
 	  case 'z': TS = 1; trajectory_init(); xakhir[0] = xr[0]-0.1; xakhir[1] = xr[1]-0.1; break;
 	  case 'X': JS = 1; trajectory_init(); qakhir[0] = q[0]+(10*DTR); break;
 	  case 'x': JS = 1; trajectory_init(); qakhir[0] = q[0]-(10*DTR); break;
-	  case 'C': VS = 1; break;
-	  case 'c': VS = 1; break;
+	  case 'C': VS = 1; trajectory_init(); break;
+	  case 'c': VS = 1; trajectory_init(); break;
+	  case 'T': break; //Target movement
+	  case 't': break;
       //case 'd': debug=(~debug) & 0x1; break;
       //case 's': glutIdleFunc(NULL); break;
       //case 'r': glutIdleFunc(&Sim_main); break;

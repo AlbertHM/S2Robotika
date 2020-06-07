@@ -176,6 +176,7 @@ void Improc(Mat imgOriginal, dataImProc *dataip)
 			result = atan(param) * 180 / PI + 180;
 		}
 		
+		dataip->d_l = 1;
 		dataip->deg_link = result;
 		
 		//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
@@ -210,6 +211,10 @@ void Improc(Mat imgOriginal, dataImProc *dataip)
 		{
 			theta_obj_base = atan(param) * 180 / PI + 180;
 		}
+		
+		dataip->d_o = 1;
+		dataip->deg_obj = theta_obj_base;
+		
 		//printf("||%d ++ %d {%.2f}{%.2f}||",delta.y, delta.x, param, result);
 		posText.x = mcJingga.x + delta.x/2;
 		posText.y = mcJingga.y + delta.y/2;
