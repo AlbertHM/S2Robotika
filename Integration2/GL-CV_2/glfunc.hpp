@@ -161,7 +161,7 @@ void disp_robot(void)
     model_cylinder(obj, 0.1, 0.1, Zoffset, 2, abu2, abu2);
     // Menuju joint-1
     glTranslatef(0, 0, Zoffset/2);
-    glRotatef(q1*RTD+90,0,0,1);
+    glRotatef(q1*RTD-90,0,0,1);
     glPushMatrix();
       // Gambar link1
       glRotatef(-90,1,0,0);
