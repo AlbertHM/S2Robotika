@@ -312,6 +312,7 @@ void Sim_main(void)
 		if(d_goal)
 		{
 			joint_space(0);
+			cout << counter << "_" << qawal[0] << "_" << q[0] << "_" << qakhir[0] << endl;
 		}
 		
 		if(counter < step)
