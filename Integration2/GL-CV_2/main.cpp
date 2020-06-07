@@ -306,14 +306,14 @@ void Sim_main(void)
 				qawal[0] = q[0];
 				qakhir[0] = dataip.deg_obj * DTR;
 				d_goal = 1;
-				cout << "Operation start : " << counter << "_" << qawal[0] << "_" << q[0] << "_" << qakhir[0] << endl;
+				cout << "Operation start : " << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 			}
 			
 		}
 		if(d_goal)
 		{
 			joint_space(0);
-			cout << counter << "_" << qawal[0] << "_" << q[0] << "_" << qakhir[0] << endl;
+			cout << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 		}
 		
 		if(counter < step)
