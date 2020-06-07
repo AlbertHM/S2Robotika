@@ -306,6 +306,7 @@ void Sim_main(void)
 				qawal[0] = q[0];
 				qakhir[0] = dataip.deg_obj * DTR;
 				d_goal = 1;
+				cout << "Operation start : " << counter << "_" << qawal[0] << "_" << q[0] << "_" << qakhir[0] << endl;
 			}
 			
 		}
