@@ -34,6 +34,7 @@ typedef struct
 
 sudut_st data_recv;
 
+/*
 long Convert2MS(float x)
 {
 	/*
@@ -56,8 +57,9 @@ void MoveRobot(sudut_st ds)
 	frame[2] = Convert2MS(ds.sudut_joint1);
 	frame[3] = Convert2MS(ds.sudut_joint2);
 	frame[6] = Convert2MS(ds.sudut_joint3);
-	rcservo_MoveTo(frame, 20L) // move in 20 ms
+	rcservo_MoveTo(frame, 20L); // move in 20 ms
 }
+
 
 int CreateTCPServerSocket(unsigned short port)
 {

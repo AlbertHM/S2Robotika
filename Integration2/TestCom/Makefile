@@ -5,15 +5,15 @@ FLAGS =
 LIBS = -I../../include -L../../lib -lstdc++
 #LIBS = 
 
-all: NR roboardSide 
+all: roboardSide comPC
 NR: netroboard.c
 	$(CCGL) $(FLAGS) $^ $(LIBS) -o $@
 
-roboardSide: roboardSide.cpp
+roboardSide: roboardSide.c
 	$(CCGL) $(FLAGS) $^ $(LIBS) -o $@
 
-#comPC : comPC.hpp
-#	$(CCGL) $(FLAGS) $^ $(LIBS) -o $@
+comPC: comPC.c
+	$(CCGL) $(FLAGS) $^ $(LIBS) -o $@
 	
 clean:
-	rm -rf NR roboardSide *.exe
+	rm -rf comPC roboardSide *.exe

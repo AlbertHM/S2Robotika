@@ -1,7 +1,8 @@
 
 CCGL = gcc
 FLAGS = 
-LIBS = -I../../include -L../../lib -lRBIO -lstdc++
+#LIBS = -I../../include -L../../lib -lRBIO -lstdc++
+LIBS = 
 
 all:	roboardSide
 roboardSide: roboardSide.cpp

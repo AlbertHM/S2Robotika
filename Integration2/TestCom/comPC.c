@@ -1,13 +1,11 @@
-/* Part of Integration 1
+/* Part of Integration 2
 *
-* roboardSide.cpp
-* Function : Receive struct of joint angle and control roboard
+* comPC.hpp
+* Function : Send struct of integer contain desired angle
 *
 * Albert H.M., S.T.
 *
 */
-
-// Note : Jangan simpan dalam .cpp, inet_addr tidak akan berhasil dicompile. Simpan dalam *.c
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +19,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+//#include <arpa/inet.h> // uncomment this line if u use *.cpp
+
 #define ROBOT_PORT	45000		// Roboard Port Number
 #define PC_PORT	45001		// Cmd Port Number
 
@@ -33,7 +33,7 @@ typedef struct
 	float sudut_joint3; // Target
 } sudut_st;
 
-sudut_st data_recv;
+sudut_st data_send;
 
 long i;
 unsigned int error,etemp;
@@ -41,7 +41,9 @@ int  sock, rtsock, count, params[2], fd;
 int  addrLen;
 struct sockaddr_in addr;
 struct timeval tv1, tv2;
-char *s, s1[1024], s2[200];
+char s1[1024], s2[200];
+
+char *s = "127.0.0.1";
 unsigned short PORT_NO;
 int cp_agl2cmd=0;
 FILE *fdata;
@@ -97,7 +99,7 @@ int CreateTCPClientSocket(unsigned short port, char *servIP)
 
     return sock;
 }
-		
+	
 char *EncodeIPAddress(char *s, struct sockaddr_in *sin)
 {
 	sprintf(s, "port :%d", 
@@ -106,36 +108,51 @@ char *EncodeIPAddress(char *s, struct sockaddr_in *sin)
 	return s;
 }
 
-int main(int argc, char *argv[])
+void send_data(float a, float b, float c)
 {
+	//sudut_st data_send;
+	data_send.sudut_joint1 = a;
+	data_send.sudut_joint2 = b;
+	data_send.sudut_joint3 = c;
+	// send 1 packet
+	printf("a1\n");
+	printf("Fine : %.2f\n",data_send.sudut_joint1);
+	int u = send(sock, &data_send, sizeof(data_send), 0);
+	printf("te %d + %d + %d + %d\n", u, sock, &data_send, sizeof(data_send));
+	if(u < 0) {
+		printf("Not fine : %.2f\n",data_send.sudut_joint1);
+		close(sock);
+		exit(0);
+	}	
+}
 
-	PORT_NO=ROBOT_PORT;
-	if((sock = CreateTCPServerSocket(PORT_NO)) < 0) 
+int init_connect()
+{	
+	printf("ok1");
+	PORT_NO = ROBOT_PORT;
+	
+	printf("ok2");
+	if((sock = CreateTCPClientSocket(PORT_NO, s)) < 0) 
 	{
 		exit(-1);
-	}
-	addrLen = sizeof(addr);
-	if(getsockname(sock, &addr, &addrLen) < 0 ) 
-	{
-		close(sock);
-		return -1;
-	}
-	printf("rx bound to address %s\n", EncodeIPAddress(s1, &addr));
-	count = 0;
-	error=0;
+		printf("error");
+	}	
+	printf("ok3");
+	printf("tx bound to address %d\n", PORT_NO);
 	gettimeofday(&tv1, NULL);
+}
+
+int main()
+{
+	int counter = 0;
+	printf("ok0");
+	init_connect();
+	//send_data(10.1, 10.2, 10.3);
 	for(;;) {
-		count++;
-		if (recv(sock, &data_recv, sizeof(data_recv), 0)!=sizeof(data_recv)) 
-		{
-			printf("Receive data not equal\n");
-		} 
-		else 
-		{
-			printf("Receive data S1:%f, S2:%f, S3:%f\n", data_recv.sudut_joint1, data_recv.sudut_joint2, data_recv.sudut_joint3);
-		}
+		send_data(10.1, 10.2, 10.3);
 		usleep(1000);
+		printf("Counter : %d",counter);
+		counter++;
 	}
-	fclose(fdata);
 	return 0;
 }
