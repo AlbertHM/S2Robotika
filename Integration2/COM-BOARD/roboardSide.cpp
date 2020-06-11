@@ -43,7 +43,7 @@ long Convert2MS(float x)
 	*/
 	int m = 0L;
 	int c = 0L;
-	return m*(long)x+c
+	return m*(long)x+c;
 }
 
 void MoveRobot(sudut_st ds)
