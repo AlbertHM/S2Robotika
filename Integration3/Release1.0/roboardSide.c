@@ -7,8 +7,9 @@
 *
 */
 
+// Note : Jangan simpan dalam .cpp, inet_addr tidak akan berhasil dicompile. Simpan dalam *.c
+
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -22,8 +23,6 @@
 
 #define ROBOT_PORT	45000		// Roboard Port Number
 #define PC_PORT	45001		// Cmd Port Number
-
-using namespace std;
 
 static int g_rtfd = -1;
 
