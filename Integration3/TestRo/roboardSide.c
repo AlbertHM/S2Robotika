@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <roboard.h>
 
 #define ROBOT_PORT	45000		// Roboard Port Number
 #define PC_PORT	45001		// Cmd Port Number
