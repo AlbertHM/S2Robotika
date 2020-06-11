@@ -1,16 +1,10 @@
 
-INCLUDE = -I/usr/include
-#LIBDIR  = -L/usr/X11R6/lib 
+CCGL = gcc
+FLAGS = 
+LIBS = -I../../include -L../../lib -lRBIO -lstdc++
 
-#COMPILERFLAGS = -Wall		# display all warning
-CC = gcc
-CFLAGS = $(COMPILERFLAGS) $(INCLUDE) 
-INC_FILES= $(wildcard *.c) $(wildcard *.o)
-
-LIBRARIES = #-lcygipc
-
-all:	netrobot
-netrobot: roboardSide.c
-	$(CC) $(CFLAGS) -o $@ $(LIBDIR) $^ $(LIBRARIES) 
+all:	roboardSide
+roboardSide: roboardSide.cpp
+	$(CCGL) $(FLAGS) $^ $(LIBS) -o $@
 clean:
-	rm -f  robot control stopcmd webcmd *.o *.exe
+	rm -rf *.exe
