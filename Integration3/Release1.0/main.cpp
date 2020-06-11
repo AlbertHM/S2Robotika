@@ -126,7 +126,8 @@ int  addrLen;
 struct sockaddr_in addr;
 struct timeval tv1, tv2;
 
-char *s = "127.0.0.1";
+//char *s = "127.0.0.1";
+char *s = strdup("192.168.0.20");
 unsigned short PORT_NO;
 int cp_agl2cmd=0;
 FILE *fdata;
@@ -438,6 +439,7 @@ void Sim_main(void)
 		if(d_goal)
 		{
 			joint_space(0);
+			send_data(q[0]*RTD,q[1]*RTD,1.01);
 			cout << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 		}
 		
