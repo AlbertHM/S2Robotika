@@ -8,7 +8,7 @@
 */
 
 // Note : Jangan simpan dalam .cpp, inet_addr tidak akan berhasil dicompile. Simpan dalam *.c
-
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,7 +20,19 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <roboard.h>*/
+
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <roboard.h>
+#include <iostream>
+
 
 #define ROBOT_PORT	45000		// Roboard Port Number
 #define PC_PORT	45001		// Cmd Port Number
