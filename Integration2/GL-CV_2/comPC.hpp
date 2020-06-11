@@ -94,7 +94,7 @@ char *EncodeIPAddress(char *s, struct sockaddr_in *sin)
 	return s;
 }
 
-void send_data(float a, float b, float c)
+void send_data(int sock, float a, float b, float c)
 {
 	sudut_st data_send;
 	data_send.sudut_joint1 = a;

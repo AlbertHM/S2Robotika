@@ -9,10 +9,8 @@ INC_FILES= $(wildcard *.c) $(wildcard *.o)
 
 LIBRARIES = #-lcygipc
 
-all:	netpc netrobot
-netpc: netmaster.c
-	$(CC) $(CFLAGS) -o $@ $(LIBDIR) $^ $(LIBRARIES) 
-netrobot: netroboard.c
+all:	netrobot
+netrobot: roboardSide.c
 	$(CC) $(CFLAGS) -o $@ $(LIBDIR) $^ $(LIBRARIES) 
 clean:
 	rm -f  robot control stopcmd webcmd *.o *.exe
