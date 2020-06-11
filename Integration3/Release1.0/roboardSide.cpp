@@ -23,6 +23,8 @@
 #define ROBOT_PORT	45000		// Roboard Port Number
 #define PC_PORT	45001		// Cmd Port Number
 
+using namespace std;
+
 static int g_rtfd = -1;
 
 typedef struct
@@ -34,30 +36,16 @@ typedef struct
 
 sudut_st data_recv;
 
-long Convert2MS(float x)
-{
-	/*
-	Function : Converting sudut in degree into PWM length signal
-	
-	Return : PWM length signal
-	*/
-	int m = 0L;
-	int c = 0L;
-	return m*(long)x+c
-}
-
-void MoveRobot(sudut_st ds)
-{
-	/*
-	Function : assigning new target of joint degree and move it in 20ms
-	
-	Return : None
-	*/
-	frame[2] = Convert2MS(ds.sudut_joint1);
-	frame[3] = Convert2MS(ds.sudut_joint2);
-	frame[6] = Convert2MS(ds.sudut_joint3);
-	rcservo_MoveTo(frame, 20L) // move in 20 ms
-}
+long i;
+unsigned int error,etemp;
+int  sock, rtsock, count, params[2], fd;
+int  addrLen;
+struct sockaddr_in addr;
+struct timeval tv1, tv2;
+char *s, s1[1024], s2[200];
+unsigned short PORT_NO;
+int cp_agl2cmd=0;
+FILE *fdata;
 
 int CreateTCPServerSocket(unsigned short port)
 {
@@ -111,8 +99,7 @@ int CreateTCPClientSocket(unsigned short port, char *servIP)
     return sock;
 }
 		
-char *
-EncodeIPAddress(char *s, struct sockaddr_in *sin)
+char *EncodeIPAddress(char *s, struct sockaddr_in *sin)
 {
 	sprintf(s, "port :%d", 
 		htons(sin->sin_port)
@@ -122,40 +109,6 @@ EncodeIPAddress(char *s, struct sockaddr_in *sin)
 
 int main(int argc, char *argv[])
 {
-	// =========== INIT Roboard =========== //
-	
-	unsigned long home[32]  = {0L};
-    unsigned long frame[32] = {0L};
-    
-    // First set the correct RoBoard version
-    roboio_SetRBVer(RB_100);
-    //roboio_SetRBVer(RB_100RD);  // if your RoBoard is RB-100RD
-    //roboio_SetRBVer(RB_110);    // if your RoBoard is RB-110
-    //roboio_SetRBVer(RB_050);    // if your RoBoard is RB-050
-
-    rcservo_SetServo(RCSERVO_PINS3, RCSERVO_SERVO_DEFAULT_NOFB);     // select the servo model on pin S1 as non-feedback servo
-    rcservo_SetServo(RCSERVO_PINS4, RCSERVO_SERVO_DEFAULT_NOFB);     // select the servo model on pin S2 as non-feedback servo
-    if (rcservo_Init(RCSERVO_USEPINS3 + RCSERVO_USEPINS4) == false)  // set PWM/GPIO pins S1 & S2 as Servo mode
-    {
-        printf("ERROR: fail to init RC Servo lib (%s)!\n", roboio_GetErrMsg());
-        return -1;
-    }
-
-    home[2] = home[3] = 1500L;  // set the initial home position of all servos as 1500us
-    rcservo_EnterPlayMode_HOME(home);  // enter Action Playing Mode for moving servos
-	
-	// =========== INIT Roboard =========== /
-	
-	long i;
-	unsigned int error,etemp;
-	int  sock, rtsock, count, params[2], fd;
-	int  addrLen;
-	struct sockaddr_in addr;
-	struct timeval tv1, tv2;
-	char *s, s1[1024], s2[200];
-	unsigned short PORT_NO;
-	int cp_agl2cmd=0;
-	FILE *fdata;
 
 	PORT_NO=ROBOT_PORT;
 	if((sock = CreateTCPServerSocket(PORT_NO)) < 0) 
