@@ -158,13 +158,14 @@ int main(int argc, char *argv[])
 
     rcservo_SetServo(RCSERVO_PINS3, RCSERVO_SERVO_DEFAULT_NOFB);     // select the servo model on pin S1 as non-feedback servo
     rcservo_SetServo(RCSERVO_PINS4, RCSERVO_SERVO_DEFAULT_NOFB);     // select the servo model on pin S2 as non-feedback servo
-    if (rcservo_Init(RCSERVO_USEPINS3 + RCSERVO_USEPINS4) == false)  // set PWM/GPIO pins S1 & S2 as Servo mode
+    rcservo_SetServo(RCSERVO_PINS7, RCSERVO_SERVO_DEFAULT_NOFB);     // select the servo model on pin S6 as non-feedback servo
+    if (rcservo_Init(RCSERVO_USEPINS7 + RCSERVO_USEPINS3 + RCSERVO_USEPINS4) == false)  // set PWM/GPIO pins S1 & S2 as Servo mode
     {
         printf("ERROR: fail to init RC Servo lib (%s)!\n", roboio_GetErrMsg());
         return -1;
     }
 
-    home[2] = home[3] = 1500L;  // set the initial home position of all servos as 1500us
+    home[2] = home[3] = home[6] = 1500L;  // set the initial home position of all servos as 1500us
     rcservo_EnterPlayMode_HOME(home);  // enter Action Playing Mode for moving servos
 	
 	PORT_NO=ROBOT_PORT;
@@ -186,7 +187,7 @@ int main(int argc, char *argv[])
 		count++;
 		if (recv(sock, &data_recv, sizeof(data_recv), 0)!=sizeof(data_recv)) 
 		{
-			printf("Receive data not equal\n");
+			printf("Received data not equal\n");
 		} 
 		else 
 		{
