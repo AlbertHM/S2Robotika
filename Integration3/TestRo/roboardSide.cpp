@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 	addrLen = sizeof(addr);
-	if(getsockname(sock, &addr, &addrLen) < 0 ) 
+	if(getsockname(sock,(struct sockaddr *) &addr, &addrLen) < 0 ) 
 	{
 		close(sock);
 		return -1;
