@@ -70,9 +70,20 @@ long Convert2MS(float x)
 	
 	Return : PWM length signal
 	*/
-	long m = 2;
-	long c = 1;
-	return m*(long)x+c;
+	// 20* 1000L; 88* 1500L; 160* 2000L // End-e || m = 7.141; c = 862.1
+	// 140*; 55*; 36* // Objek || m = -8.477; c = 2153
+	long m = 7.141;
+	long c = 862.1;
+	ret = m*(long)x+c;
+	if(ret>2000)
+	{
+		ret = 2000;
+	}
+	else if(ret<1000)
+	{
+		ret = 1000;
+	}
+	return ret;
 }
 
 void MoveRobot(sudut_st ds)
@@ -150,6 +161,7 @@ char *EncodeIPAddress(char *s, struct sockaddr_in *sin)
 
 int main(int argc, char *argv[])
 {
+	long temp;
 	// First set the correct RoBoard version
     roboio_SetRBVer(RB_100);
     //roboio_SetRBVer(RB_100RD);  // if your RoBoard is RB-100RD
@@ -211,6 +223,9 @@ int main(int argc, char *argv[])
 		else 
 		{
 			printf("Receive data S1:%f, S2:%f, S3:%f\n", data_recv.sudut_joint1, data_recv.sudut_joint2, data_recv.sudut_joint3);
+			temp = Convert2MS(data_recv.sudut_joint1);
+			printf("&d",temp);
+			
 		}
 		usleep(1000);
 	}
