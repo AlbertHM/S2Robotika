@@ -81,8 +81,8 @@ float det;
 float dt = 0.02;
 
 // Param Joint Space Spesific
-float KpJ = 0.2;
-float KdJ = 0.1;
+float KpJ = 0.02;
+float KdJ = 0.005;
 
 float qawal[2], qakhir[2], qcmd[2];
 float dqold[2], dqcmd[2], ddqcmd[2];
@@ -439,9 +439,10 @@ void Sim_main(void)
 		}
 		if(d_goal)
 		{
+			q[0] = dataip.deg_link * RTD;
 			joint_space(0);
 			send_data(q[0]*RTD,0,0);
-			cout << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
+			cout << counter << "+++" << qawal[0]*RTD << dataip.deg_link << "+++" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 		}
 		
 		if(counter < step)
@@ -451,6 +452,7 @@ void Sim_main(void)
 		}
 		else if(counter == step)
 		{
+			printf("Pukul objek");
 			send_data(q[0]*RTD,1,0); // Pukul
 			VS = 0;
 		}

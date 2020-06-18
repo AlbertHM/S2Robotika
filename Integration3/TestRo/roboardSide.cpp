@@ -279,19 +279,15 @@ int main(int argc, char *argv[])
 			printf("%d\n",temp);
 			if(data_recv.sudut_joint3 == 0)
 			{
-				trig = 1
+				//trig = 1;
 				MoveRobot(data_recv);
-			}
-			else if(data_recv.sudut_joint2 == 1)
-			{
-				if(trig)
+				if(data_recv.sudut_joint2 == 1)
 				{
-					usleep(10000);
+					usleep(1000);
 					frame[3] = 900L;
 					rcservo_MoveOne(RCSERVO_PINS4, frame[3], 250L);
 					frame[3] = 1500L;
 					rcservo_MoveOne(RCSERVO_PINS4, frame[3], 250L);
-					trig = 0;
 				}
 			}
 			else
