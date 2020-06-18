@@ -87,6 +87,56 @@ long Convert2MS(float x)
 	return ret;
 }
 
+long Convert2MST(float x) //Khusus target
+{
+	/*
+	Function : Converting sudut in degree into PWM length signal
+	
+	Return : PWM length signal
+	*/
+	// 20* 1000L; 88* 1500L; 160* 2000L // End-e || m = 7.141; c = 862.1
+	// 140*; 55*; 36* // Objek || m = -8.477; c = 2153
+	long ret;
+	long m = -8.477;
+	long c = 2153;
+	ret = m*(long)x+c;
+	if(ret>2000)
+	{
+		ret = 2000;
+	}
+	else if(ret<1000)
+	{
+		ret = 1000;
+	}
+	return ret;
+}
+
+void MoveTarget(float choose)
+{
+	/*
+	Function : moving target
+	
+	Return : None
+	*/
+	if(choose==1)
+	{
+		frame[6] = -(10*-8.477);
+	}
+	else if(choose==2)
+	{
+		frame[6] = 10*-8.477;
+	}
+	if(frame[6]>2000)
+	{
+		frame[6] = 2000;
+	}
+	else if(frame[6]<1000)
+	{
+		frame[6] = 1000;
+	}
+	rcservo_MoveTo(frame, 200L); // move in 200 ms
+}
+
 void MoveRobot(sudut_st ds)
 {
 	/*
@@ -225,8 +275,16 @@ int main(int argc, char *argv[])
 		{
 			printf("Receive data S1:%f, S2:%f, S3:%f\n", data_recv.sudut_joint1, data_recv.sudut_joint2, data_recv.sudut_joint3);
 			temp = Convert2MS(data_recv.sudut_joint1);
-			printf("&d",temp);
-			MoveRobot(data_recv)			
+			printf("%d\n",temp);
+			if(data_recv.sudut_joint3 == 0)
+			{
+				MoveRobot(data_recv);}
+			}
+			else
+			{
+				printf("Target moved\n");
+				MoveTarget(data_recv.sudut_joint3)
+			}		
 		}
 		usleep(1000);
 	}
