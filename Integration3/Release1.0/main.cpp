@@ -456,7 +456,7 @@ void Sim_main(void)
 	}
 	if(TM != 0)
 	{
-		send_data(q[0]*RTD,q[1]*RTD,TM)
+		send_data(q[0]*RTD,q[1]*RTD,TM);
 		TM = 0;
 	}
 	
