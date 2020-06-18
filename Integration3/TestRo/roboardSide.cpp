@@ -264,6 +264,7 @@ int main(int argc, char *argv[])
     frame[3] = 2000L;
     frame[6] = 2000L;
     rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
+    int trig = 0;
     
 	for(;;) {
 		count++;
@@ -278,7 +279,20 @@ int main(int argc, char *argv[])
 			printf("%d\n",temp);
 			if(data_recv.sudut_joint3 == 0)
 			{
+				trig = 1
 				MoveRobot(data_recv);
+			}
+			else if(data_recv.sudut_joint2 == 1)
+			{
+				if(trig)
+				{
+					usleep(10000);
+					frame[3] = 900L;
+					rcservo_MoveOne(RCSERVO_PINS4, frame[3], 250L);
+					frame[3] = 1500L;
+					rcservo_MoveOne(RCSERVO_PINS4, frame[3], 250L);
+					trig = 0;
+				}
 			}
 			else
 			{

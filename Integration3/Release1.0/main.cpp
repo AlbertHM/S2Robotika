@@ -440,7 +440,7 @@ void Sim_main(void)
 		if(d_goal)
 		{
 			joint_space(0);
-			send_data(q[0]*RTD,q[1]*RTD,0);
+			send_data(q[0]*RTD,0,0);
 			cout << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 		}
 		
@@ -451,12 +451,13 @@ void Sim_main(void)
 		}
 		else if(counter == step)
 		{
+			send_data(q[0]*RTD,1,0); // Pukul
 			VS = 0;
 		}
 	}
 	if(TM != 0)
 	{
-		send_data(q[0]*RTD,q[1]*RTD,TM);
+		send_data(q[0]*RTD,0,TM);
 		TM = 0;
 	}
 	
