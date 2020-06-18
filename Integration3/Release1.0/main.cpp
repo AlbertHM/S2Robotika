@@ -60,6 +60,7 @@ int counter = 0;
 bool JS = 0; // Joint space flag
 bool TS = 0; // Task space flag
 bool VS = 0; // Visual-Servoing flag
+int TM = 0; // Target move
 
 // Param robot
 float l[2] = {1,1};
@@ -439,18 +440,24 @@ void Sim_main(void)
 		if(d_goal)
 		{
 			joint_space(0);
-			send_data(q[0]*RTD,q[1]*RTD,1.01);
+			send_data(q[0]*RTD,q[1]*RTD,0);
 			cout << counter << "_" << qawal[0]*RTD << "_" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
 		}
 		
 		if(counter < step)
 		{
+			q[0] = dataip.deg_link * DTR;
 			counter++;
 		}
 		else if(counter == step)
 		{
 			VS = 0;
 		}
+	}
+	if(TM != 0)
+	{
+		send_data(q[0]*RTD,q[1]*RTD,TM)
+		TM = 0;
 	}
 	
 	//cout << dataip.deg_link << endl;
@@ -542,8 +549,8 @@ void keyboard(unsigned char key, int i, int j)
 	  case 'x': JS = 1; trajectory_init(); qakhir[0] = q[0]-(10*DTR); break;
 	  case 'C': VS = 1; trajectory_init(); break;
 	  case 'c': VS = 1; trajectory_init(); break;
-	  case 'T': break; //Target movement
-	  case 't': break;
+	  case 'T': TM = 1; break; //Target movement + 10 deg
+	  case 't': TM = 2; break; //- 10 deg
       //case 'd': debug=(~debug) & 0x1; break;
       //case 's': glutIdleFunc(NULL); break;
       //case 'r': glutIdleFunc(&Sim_main); break;
