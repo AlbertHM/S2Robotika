@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 			printf("%d\n",temp);
 			if(data_recv.sudut_joint3 == 0)
 			{
-				MoveRobot(data_recv);}
+				MoveRobot(data_recv);
 			}
 			else
 			{
