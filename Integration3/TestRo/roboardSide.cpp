@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				printf("Target moved\n");
-				MoveTarget(data_recv.sudut_joint3)
+				MoveTarget(data_recv.sudut_joint3);
 			}		
 		}
 		usleep(1000);
