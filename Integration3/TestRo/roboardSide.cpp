@@ -72,6 +72,7 @@ long Convert2MS(float x)
 	*/
 	// 20* 1000L; 88* 1500L; 160* 2000L // End-e || m = 7.141; c = 862.1
 	// 140*; 55*; 36* // Objek || m = -8.477; c = 2153
+	long ret;
 	long m = 7.141;
 	long c = 862.1;
 	ret = m*(long)x+c;
@@ -94,8 +95,8 @@ void MoveRobot(sudut_st ds)
 	Return : None
 	*/
 	frame[2] = Convert2MS(ds.sudut_joint1);
-	frame[3] = Convert2MS(ds.sudut_joint2);
-	frame[6] = Convert2MS(ds.sudut_joint3);
+	//frame[3] = Convert2MS(ds.sudut_joint2);
+	//frame[6] = Convert2MS(ds.sudut_joint3);
 	rcservo_MoveTo(frame, 20L); // move in 20 ms
 }
 
@@ -195,7 +196,7 @@ int main(int argc, char *argv[])
 	count = 0;
 	error=0;
 	gettimeofday(&tv1, NULL);
-    
+    /*
 	printf("press ENTER to move servo on pins S1, S2 & S6 1000 gang.\n"); getchar();
     frame[2] = 1000L;
     frame[3] = 1000L;
@@ -207,7 +208,7 @@ int main(int argc, char *argv[])
     frame[3] = 1500L;
     frame[6] = 1500L;
     rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
-    
+    */
 	printf("press ENTER to move servo on pins S1, S2 & S6 2000 gang.\n"); getchar();
     frame[2] = 2000L;
     frame[3] = 2000L;
@@ -225,7 +226,7 @@ int main(int argc, char *argv[])
 			printf("Receive data S1:%f, S2:%f, S3:%f\n", data_recv.sudut_joint1, data_recv.sudut_joint2, data_recv.sudut_joint3);
 			temp = Convert2MS(data_recv.sudut_joint1);
 			printf("&d",temp);
-			
+			MoveRobot(data_recv)			
 		}
 		usleep(1000);
 	}
