@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
 				MoveRobot(data_recv);
 				if(data_recv.sudut_joint2 == 1)
 				{
+					print("Pukul objek");
 					usleep(1000);
 					frame[3] = 900L;
 					rcservo_MoveOne(RCSERVO_PINS4, frame[3], 250L);
