@@ -120,11 +120,11 @@ void MoveTarget(float choose)
 	*/
 	if(choose==1)
 	{
-		frame[6] = -(10*-8.477);
+		frame[6] += -(10*-8.477);
 	}
 	else if(choose==2)
 	{
-		frame[6] = 10*-8.477;
+		frame[6] += 10*-8.477;
 	}
 	if(frame[6]>2000)
 	{
