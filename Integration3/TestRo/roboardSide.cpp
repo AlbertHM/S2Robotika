@@ -70,8 +70,8 @@ long Convert2MS(float x)
 	
 	Return : PWM length signal
 	*/
-	int m = 0L;
-	int c = 0L;
+	long m = 2;
+	long c = 1;
 	return m*(long)x+c;
 }
 
@@ -183,6 +183,31 @@ int main(int argc, char *argv[])
 	count = 0;
 	error=0;
 	gettimeofday(&tv1, NULL);
+	
+	printf("press ENTER to move servo on pins S1 & S2.\n"); getchar();
+    frame[2] = 0L;
+    frame[3] = 0L;
+    frame[6] = 0L;
+    rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
+    
+	printf("press ENTER to move servo on pins S1 & S2.\n"); getchar();
+    frame[2] = 1000L;
+    frame[3] = 1000L;
+    frame[6] = 1000L;
+    rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
+    
+	printf("press ENTER to move servo on pins S1 & S2.\n"); getchar();
+    frame[2] = 1500L;
+    frame[3] = 1500L;
+    frame[6] = 1500L;
+    rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
+    
+	printf("press ENTER to move servo on pins S1 & S2.\n"); getchar();
+    frame[2] = 2000L;
+    frame[3] = 2000L;
+    frame[6] = 2000L;
+    rcservo_MoveTo(frame, 2000L);  // move servos to the target positions in 2000ms
+    
 	for(;;) {
 		count++;
 		if (recv(sock, &data_recv, sizeof(data_recv), 0)!=sizeof(data_recv)) 
