@@ -134,7 +134,7 @@ void MoveTarget(float choose)
 	{
 		frame[6] = 1000;
 	}
-	rcservo_MoveTo(frame, 200L); // move in 200 ms
+	rcservo_MoveTo(frame, 1000L); // move in 200 ms
 }
 
 void MoveRobot(sudut_st ds)
