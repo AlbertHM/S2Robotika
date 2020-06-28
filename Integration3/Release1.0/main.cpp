@@ -439,7 +439,7 @@ void Sim_main(void)
 		}
 		if(d_goal)
 		{
-			q[0] = dataip.deg_link * RTD;
+			q[0] = dataip.deg_link * DTR;
 			joint_space(0);
 			send_data(q[0]*RTD,0,0);
 			cout << counter << "+++" << qawal[0]*RTD << dataip.deg_link << "+++" << q[0]*RTD << "_" << qakhir[0]*RTD << endl;
